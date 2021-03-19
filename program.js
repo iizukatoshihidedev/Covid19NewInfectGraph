@@ -24,7 +24,24 @@ var maxnewday = 0;
 var cities = new Array();
 var citiesIsLoad = false;
 
+//autoplayモード
+var autoplay = false;
+var autochangetime = 15;
+
 function init() {
+    //パラメーター取得
+    var params = (new URL(document.location)).searchParams;
+    try {
+        var mode = removehtml(params.get("autoplay"));
+        if ( mode == "true" ) { autoplay = true; }
+        } catch(e) {
+    }
+    try {
+        var changetime = removehtml(params.get("changetime"));
+        if ( changetime != "" && Number(changetime) > 0 ) { autochangetime = Number(changetime); }
+        } catch(e) {
+    }
+    
     //表示の調整
     //value="2018-07-22"
     //min="2018-01-01" max="2018-12-31"
@@ -35,6 +52,20 @@ function init() {
     
     //データの読み込み
     loaddata();
+}
+
+//Automode
+function autoplaymode() {
+    //都道府県切り替え
+    var index = Math.round( Math.random()*cities.length);
+    KEY_NAME = cities[index];
+    
+    setchangecity();
+    
+    //自動切り替え
+    delayedCall(autochangetime,function(){
+        reloaddata();
+    });
 }
         
 //日付に関する関数
@@ -87,6 +118,32 @@ function changecity() {
     KEY_NAME = text;
     
     reloaddata();
+}
+
+function setchangecity() {
+    var option = document.getElementById("cities").getElementsByTagName("option");
+    for( var i=0; i<option.length; i++ ) {
+        try { 
+            if( option[i].text == KEY_NAME ){
+                option[i].selected = true;
+                return;
+            }
+        } catch(e) {
+        }
+    }
+}
+
+function drawcities() {
+    var cty = document.getElementById("cities");
+    for ( var i=0; i<cities.length; i++ ) {
+        var option = document.createElement("option");
+        option.text = cities[i];
+        option.value = i;
+        cty.appendChild(option);
+    }
+    cty.disabled = false;
+    
+    setchangecity();
 }
 
 //データのロードに関する関数       
@@ -160,6 +217,12 @@ function loaddata() {
             
             //都市データはもう読まない
             citiesIsLoad = true;
+            
+            //autoplay実行
+            if ( autoplay == true ) {
+                autoplaymode();
+            }
+            
         });
         request.open('GET', dataPath, true);
         request.send();
@@ -180,19 +243,7 @@ function reloaddata() {
     loaddata(); 
 }
 
-function drawcities() {
-    var cty = document.getElementById("cities");
-    for ( var i=0; i<cities.length; i++ ) {
-        var option = document.createElement("option");
-        option.text = cities[i];
-        option.value = i;
-        cty.appendChild(option);
-        //if ( citie[i] == KEY_NAME ) sel = i;
-    }
-    cty.disabled = false;
-    //cty[sel].selected = true;
-}
-        
+//チャートに関する処理
 function drawchart() {
     var ctx = document.getElementById("chart");
     var myLineChart = new Chart(ctx, {
@@ -232,7 +283,8 @@ function drawchart() {
         }
     });
 }
-        
+
+//その他
 function dateToFormatString(date, fmt, locale, pad) {
     // %fmt% を日付時刻表記に。
     // 引数
@@ -347,6 +399,10 @@ function dateToFormatString(date, fmt, locale, pad) {
         return func(locale);
     };
     return fmt.replace(re, replaceFn);
+}
+        
+function removehtml(str) {
+    return str.replace(/<("[^"]*"|'[^']*'|[^'">])*>/g,'');
 }
         
 function delayedCall(second, callBack){
