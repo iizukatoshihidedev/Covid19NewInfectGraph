@@ -16,6 +16,7 @@
             display:block;
             justify-content: center;
             text-align: center;
+            background-color: white;
         }
         
         .form {
@@ -44,8 +45,8 @@
     </style>
 </head>
 <body onload="init();">
-    <h1>超簡単新規感染者グラフ全国版</h1>
-    <div class="form">
+    <h1 id="title">超簡単新規感染者グラフ全国版</h1>
+    <div class="form" id="form">
         <select name="cities" id="cities" onchange="changecity();"></select><br/>
         <input type="date" id="start" value=""><br/>
         <input type="date" id="end" value=""><br/>

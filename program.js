@@ -28,6 +28,11 @@ var citiesIsLoad = false;
 var autoplay = false;
 var autochangetime = 15;
 
+var isWidget = false;
+
+//darkmode
+var isDark = false;
+
 function init() {
     //パラメーター取得
     var params = (new URL(document.location)).searchParams;
@@ -43,8 +48,31 @@ function init() {
     }
     
     //表示の調整
-    //value="2018-07-22"
-    //min="2018-01-01" max="2018-12-31"
+    try {
+        var darkmode = removehtml(params.get("darkmode"));
+        if ( darkmode == "dark" ) {
+            isDark = true;
+            document.body.style.color = "white";
+            document.body.style.backgroundColor = "black";
+        }
+    } catch(e) {
+    }
+    
+    try {
+        var widgetmode = removehtml(params.get("widgetmode"));
+        if ( widgetmode == "widget" ) {
+            isWidget = true;
+            var form = document.getElementById("form");
+            form.style.visibility = "hidden";
+            form.style.height = "0px";
+            var title = document.getElementById("title");
+            title.style.visibility = "hidden";
+            title.style.height = "0px";
+        }
+    } catch(e) { 
+    }
+    
+    //日付フォームの変更
     var startdate = dateToFormatString(nowmonth(), "%YYYY%-%MM%-%DD%");
     var enddate = dateToFormatString(new Date(), "%YYYY%-%MM%-%DD%");
     
@@ -245,6 +273,12 @@ function reloaddata() {
 
 //チャートに関する処理
 function drawchart() {
+    //色変更
+    var borderColor = "rgba(255,0,0,1)";
+    var backgroundColor = "rgba(0,0,0,0)";
+    var fontColor = "rgba(255,0,0,1)";
+    
+    //Chart表示
     var ctx = document.getElementById("chart");
     var myLineChart = new Chart(ctx, {
     type: 'line',
@@ -255,8 +289,8 @@ function drawchart() {
                 id: 'y1',
                 label: '新規感染者数',
                 data: newdays,
-                borderColor: "rgba(255,0,0,1)",
-                backgroundColor: "rgba(0,0,0,0)"
+                borderColor: borderColor,
+                backgroundColor: backgroundColor
             },
         ],
     },
@@ -272,7 +306,7 @@ function drawchart() {
                     scaleLabel: {
                       display: true,
                       labelString: '新規感染者数',
-                      fontColor: 'rgba(255,0,0,1)'
+                      fontColor: fontColor
                     },
                     ticks: {
                       beginAtZero: true,
