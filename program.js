@@ -85,7 +85,13 @@ function init() {
 //Automode
 function autoplaymode() {
     //都道府県切り替え
-    var index = Math.round( Math.random()*cities.length);
+    var index = -1;
+    
+    do {
+        index = Math.round( Math.random()*cities.length);
+    } while( cities[index] == "" || cities[index] == null );
+    
+    
     KEY_NAME = cities[index];
     
     setchangecity();
@@ -99,7 +105,15 @@ function autoplaymode() {
 //日付に関する関数
 function nowmonth() {
     var date = new Date();
+    
+    //本日が月の10日未満の場合は先月をセットする
+    if ( date.getDate() <= 10 ) {
+        date.setMonth(date.getMonth() -1 );
+    }
+    
+    //1日をセット
     date.setDate(1);
+    
     return date;
 }
 
